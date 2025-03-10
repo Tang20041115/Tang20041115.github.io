@@ -1,10 +1,10 @@
 # Configurations
-title:            Jekyll Gitbook
-longtitle:        Jekyll Gitbook
-author:           HE Tao
-email:            sighingnow@gmail.com
+title:            Jekyll Gitbook-TZC
+longtitle:        Jekyll Gitbook-TZC
+author:           TZC
+email:            tangzichuan2004@gmail.com
 description: >
-  Build Jekyll site with the GitBook style.
+  Build Jekyll site with the GitBook style – by TZC.
 
 version:          1.0
 gitbook_version:  3.2.3
