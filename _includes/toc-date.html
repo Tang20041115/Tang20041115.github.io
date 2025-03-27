@@ -31,7 +31,7 @@
             <a href="{{site.baseurl}}/assets/search.html">Click to Search</a>
         </div>
         <ul class="summary">
-            {% if page.url == "/index.html" or page.url == "/" %}
+            {% if page.url == "/index.html" or page.url == "/" or page.url == "/readme.html" %}
             <li class="chapter active" data-level="1.1" data-path="{{site.baseurl}}">
             {% else %}
             <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}">
@@ -48,71 +48,77 @@
 
             <li class="divider"></li>
 
-            {% if site.ordered_collections %}
-                {% for label in site.ordered_collections %}
-                    {% assign collection = site.collections | where: "label", label | first %}
-                    <!-- <p>{{ collection.label }}</p> -->
-                    {% if collection.output %}
-                        {% if collection.label == "posts" %}
-                            {% assign reversed_posts = site[collection.label] %}
-                        {% else %}
-                            {% assign reversed_posts = site[collection.label] %}
-                        {% endif %}
+            <!-- 按日期倒序排列所有集合 -->
+            {% assign all_posts = site.posts | sort: "date" | reverse %}
+            {% assign all_pages = site.pages | sort: "date" | reverse %}
+            {% assign all_others = site.others | sort: "date" | reverse %}
 
-                        {% for post in reversed_posts %}
-                            {% if page.url == post.url %}
-                            <li class="chapter active" data-level="1.2" data-path="{{site.baseurl}}{{post.url}}">
-                            {% else %}
-                            <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}{{post.url}}">
-                            {% endif %}
-                                <a href="{{site.baseurl}}{{post.url}}" onclick="pageScrollToTop(this)">
-                                    {{ post.title | escape }}
-                                </a>
-                                {% if site.toc.enabled %}
-                                    {% if page.url == post.url %}
-                                        {% include toc.html html=content h_min=site.toc.h_min h_max=site.toc.h_max %}
-                                    {% endif %}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-
-                        {% if reversed_posts.size > 0 %}
-                            <li class="divider"></li>
+            <!-- 显示 _posts -->
+            {% for post in all_posts %}
+                {% if page.url == post.url %}
+                <li class="chapter active" data-level="1.2" data-path="{{site.baseurl}}{{post.url}}">
+                {% else %}
+                <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}{{post.url}}">
+                {% endif %}
+                    <a href="{{site.baseurl}}{{post.url}}" onclick="pageScrollToTop(this)">
+                        {{ post.title | escape }}
+                    </a>
+                    {% if site.toc.enabled %}
+                        {% if page.url == post.url %}
+                            {% include toc.html html=content h_min=site.toc.h_min h_max=site.toc.h_max %}
                         {% endif %}
                     {% endif %}
-                {% endfor %}
-            {% else %}
-                {% for collection in site.collections %}
-                    <!-- <p>{{ collection.label }}</p> -->
-                    {% if collection.output %}
-                        {% if collection.label == "posts" %}
-                            {% assign reversed_posts = site[collection.label] | reverse %}
-                        {% else %}
-                            {% assign reversed_posts = site[collection.label] %}
-                        {% endif %}
+                </li>
+            {% endfor %}
 
-                        {% for post in reversed_posts %}
-                            {% if page.url == post.url %}
-                            <li class="chapter active" data-level="1.2" data-path="{{site.baseurl}}{{post.url}}">
-                            {% else %}
-                            <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}{{post.url}}">
+            {% if all_posts.size > 0 %}
+                <li class="divider"></li>
+            {% endif %}
+
+            <!-- 显示 _pages -->
+            {% for page_item in all_pages %}
+                {% if page_item.path != "README.md" %} <!-- 排除 README.md -->
+                    {% if page.url == page_item.url %}
+                    <li class="chapter active" data-level="1.2" data-path="{{site.baseurl}}{{page_item.url}}">
+                    {% else %}
+                    <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}{{page_item.url}}">
+                    {% endif %}
+                        <a href="{{site.baseurl}}{{page_item.url}}" onclick="pageScrollToTop(this)">
+                            {{ page_item.title | escape }}
+                        </a>
+                        {% if site.toc.enabled %}
+                            {% if page.url == page_item.url %}
+                                {% include toc.html html=content h_min=site.toc.h_min h_max=site.toc.h_max %}
                             {% endif %}
-                                <a href="{{site.baseurl}}{{post.url}}" onclick="pageScrollToTop(this)">
-                                    {{ post.title | escape }}
-                                </a>
-                                {% if site.toc.enabled %}
-                                    {% if page.url == post.url %}
-                                        {% include toc.html html=content h_min=site.toc.h_min h_max=site.toc.h_max %}
-                                    {% endif %}
-                                {% endif %}
-                            </li>
-                        {% endfor %}
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
 
-                        {% if reversed_posts.size > 0 %}
-                            <li class="divider"></li>
+            {% if all_pages.size > 0 %}
+                <li class="divider"></li>
+            {% endif %}
+
+            <!-- 显示 _others -->
+            {% for other in all_others %}
+                {% if page.url == other.url %}
+                <li class="chapter active" data-level="1.2" data-path="{{site.baseurl}}{{other.url}}">
+                {% else %}
+                <li class="chapter" data-level="1.1" data-path="{{site.baseurl}}{{other.url}}">
+                {% endif %}
+                    <a href="{{site.baseurl}}{{other.url}}" onclick="pageScrollToTop(this)">
+                        {{ other.title | escape }}
+                    </a>
+                    {% if site.toc.enabled %}
+                        {% if page.url == other.url %}
+                            {% include toc.html html=content h_min=site.toc.h_min h_max=site.toc.h_max %}
                         {% endif %}
                     {% endif %}
-                {% endfor %}
+                </li>
+            {% endfor %}
+
+            {% if all_others.size > 0 %}
+                <li class="divider"></li>
             {% endif %}
         </ul>
     </nav>
