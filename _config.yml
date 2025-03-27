@@ -72,3 +72,8 @@ plugins:
   - jekyll-feed
   - jekyll-readme-index
   - jemoji
+
+gitbook:
+  pluginsConfig:
+    fontsettings:
+      theme: night  # 将默认主题改为 Night
