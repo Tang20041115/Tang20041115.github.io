@@ -1,22 +1,74 @@
 <!DOCTYPE HTML>
-<html lang="en" >
+<html lang="en">
     <head>
-
         {%- include head.html -%}
 
-        {% if page.previous %}
-            <link rel="prev" href="{{site.baseurl}}{{page.previous.url}}" />
+        <!-- 自定义“上一篇”和“下一篇”逻辑 -->
+        {% assign all_posts = site.posts | sort: "date" | reverse %} <!-- _posts 按时间倒序 -->
+        {% assign all_pages = site.pages | sort: "date" | reverse %} <!-- _pages 按日期倒序 -->
+        {% assign all_others = site.others | sort: "date" | reverse %} <!-- _others 按日期倒序 -->
+
+        <!-- 手动添加 README.md 作为第一篇 -->
+        {% assign readme_page = site.pages | where: "path", "README.md" | first %}
+        {% assign all_items = all_posts | concat: all_pages | concat: all_others %}
+        {% if readme_page %}
+            {% assign all_items = all_items | prepend: readme_page %}
+        {% endif %}
+
+        <!-- 调试 URL -->
+        <script>
+            console.log("Current page.url: {{ page.url }}");
+            console.log("README page.url: {{ readme_page.url }}");
+            console.log("All items: {{ all_items | map: 'url' | join: ', ' }}");
+            console.log("Current index: {{ current_index }}");
+        </script>
+
+        {% assign current_index = -1 %}
+        {% for item in all_items %}
+            <!-- 拆分条件以避免语法错误 -->
+            {% assign is_url_match = false %}
+            {% if item.url == page.url %}
+                {% assign is_url_match = true %}
+            {% endif %}
+            {% assign is_readme_match = false %}
+            {% if page.url == "/" and item.path == "README.md" %}
+                {% assign is_readme_match = true %}
+            {% endif %}
+            {% if page.url == "/index.html" and item.path == "README.md" %}
+                {% assign is_readme_match = true %}
+            {% endif %}
+            {% if page.url == "/readme.html" and item.path == "README.md" %}
+                {% assign is_readme_match = true %}
+            {% endif %}
+            {% if page.url == "/README.html" and item.path == "README.md" %}
+                {% assign is_readme_match = true %}
+            {% endif %}
+
+            {% if is_url_match or is_readme_match %}
+                {% assign current_index = forloop.index0 %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+
+        <!-- 设置“上一篇” -->
+        {% if current_index > 0 %}
+            {% assign prev_index = current_index | minus: 1 %}
+            {% assign prev_item = all_items[prev_index] %}
+            <link rel="prev" href="{{site.baseurl}}{{prev_item.url}}" />
         {% else %}
             <link rel="prev" href="{{site.baseurl}}/" />
         {% endif %}
 
-        {% if page.next %}
-            <link rel="next" href="{{site.baseurl}}{{page.next.url}}" />
+        <!-- 设置“下一篇” -->
+        {% assign size_minus_one = all_items.size | minus: 1 %}
+        {% if current_index >= 0 and current_index < size_minus_one %}
+            {% assign next_index = current_index | plus: 1 %}
+            {% assign next_item = all_items[next_index] %}
+            <link rel="next" href="{{site.baseurl}}{{next_item.url}}" />
         {% endif %}
     </head>
     <body>
         <div class="book">
-
             {%- include toc-date.html -%}
 
             <div class="book-body">
@@ -35,18 +87,16 @@
                 <div class="body-inner">
                     {%- include body.html -%}
 
-                    {% if page.previous %}
-                        <a href="{{site.baseurl}}{{page.previous.url}}" class="navigation navigation-prev navigation-unique" aria-label="Previous page: {{page.previous.title}}">
-                            <i class="fa fa-angle-left"></i>
-                        </a>
-                    {% else %}
-                        <a href="{{site.baseurl}}/" class="navigation navigation-prev navigation-unique" aria-label="Previous page: {{site.title}}">
+                    <!-- “上一篇”按钮 -->
+                    {% if current_index > 0 %}
+                        <a href="{{site.baseurl}}{{prev_item.url}}" class="navigation navigation-prev navigation-unique" aria-label="Previous page: {{prev_item.title | default: site.title }}">
                             <i class="fa fa-angle-left"></i>
                         </a>
                     {% endif %}
 
-                    {% if page.next %}
-                        <a href="{{site.baseurl}}{{page.next.url}}" class="navigation navigation-next navigation-unique" aria-label="Next page: {{page.next.title}}">
+                    <!-- “下一篇”按钮 -->
+                    {% if current_index >= 0 and current_index < size_minus_one %}
+                        <a href="{{site.baseurl}}{{next_item.url}}" class="navigation navigation-next navigation-unique" aria-label="Next page: {{next_item.title | default: 'Next Page' }}">
                             <i class="fa fa-angle-right"></i>
                         </a>
                     {% endif %}
@@ -62,6 +112,5 @@
         </div>
 
         {%- include footer.html -%}
-
     </body>
 </html>
