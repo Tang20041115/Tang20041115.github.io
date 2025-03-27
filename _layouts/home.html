@@ -1,18 +1,17 @@
 <!DOCTYPE HTML>
-<html lang="en" >
+<html lang="en">
     <head>
-
         {%- include head.html -%}
 
-        {% assign reversed_posts = site.posts | reverse %}
+        <!-- 获取 _posts 的最新一篇 -->
+        {% assign latest_posts = site.posts | sort: "date" | reverse %}
 
-        {% if reversed_posts %}
-            <link rel="next" href="{{site.baseurl}}{{reversed_posts.first.url}}" />
+        {% if latest_posts %}
+            <link rel="next" href="{{site.baseurl}}{{latest_posts.first.url}}" />
         {% endif %}
     </head>
     <body>
         <div class="book">
-
             {%- include toc-date.html -%}
 
             <div class="book-body">
@@ -31,12 +30,14 @@
                 <div class="body-inner">
                     {%- include body.html -%}
 
-                    <a href="{{site.baseurl}}/" class="navigation navigation-pre navigation-unique">
+                    <!-- 移除“上一篇”按钮 -->
+                    <!-- <a href="{{site.baseurl}}/" class="navigation navigation-prev navigation-unique">
                         <i class="fa"></i>
-                    </a>
+                    </a> -->
 
-                    {% if reversed_posts %}
-                        <a href="{{site.baseurl}}{{reversed_posts.first.url}}" class="navigation navigation-next navigation-unique" aria-label="Next page: {{reversed_posts.first.title}}">
+                    <!-- “下一篇”按钮指向 _posts 的最新一篇 -->
+                    {% if latest_posts %}
+                        <a href="{{site.baseurl}}{{latest_posts.first.url}}" class="navigation navigation-next navigation-unique" aria-label="Next page: {{latest_posts.first.title}}">
                             <i class="fa fa-angle-right"></i>
                         </a>
                     {% endif %}
@@ -52,6 +53,5 @@
         </div>
 
         {%- include footer.html -%}
-
     </body>
 </html>
